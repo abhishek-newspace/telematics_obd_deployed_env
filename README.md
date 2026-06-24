@@ -83,7 +83,7 @@ sudo usermod -aG dialout $USER
 ## Installation
 
 ```bash
-cd ~/Desktop/motor-controller/motor-controller-log
+cd ~/Desktop/motor-controller-log
 pip3 install -r requirements.txt
 ```
 
@@ -123,7 +123,7 @@ MOTOR_LOG_REAR_ENABLED=true MOTOR_LOG_REAR_SERIAL=/dev/ttyUSB3 python3 run_logge
 ### Start logging
 
 ```bash
-cd ~/Desktop/motor-controller/motor-controller-log
+cd ~/Desktop/motor-controller-log
 python3 run_logger.py
 ```
 
@@ -161,9 +161,9 @@ Stop:
 docker compose -f motor-controller-docker-compose.yml down
 ```
 
-Edit `motor-controller/motor-controller-log/config/motor_logger.conf` for your `ttyUSB` port numbers. Data is stored in `motor-controller/motor-controller-log/data/`.
+Edit `motor-controller-log/config/motor_logger.conf` for your `ttyUSB` port numbers. Data is stored in `motor-controller-log/data/`.
 
-**USB hot-plug:** the compose file mounts `/dev:/dev` instead of mapping a single `ttyUSB` device. Docker will not start a container if `devices: /dev/ttyUSB0` is listed but that node does not exist yet. With `/dev` mounted, the container starts immediately, waits inside the app for the port to appear, then connects when you plug in the adapter.
+**USB hot-plug:** compose mounts `/dev:/dev` and adds `device_cgroup_rules` for USB-serial (`ttyUSB*`, major 188). Without the cgroup rule, the port is visible inside the container but opening it fails with `Operation not permitted`. Do **not** use `devices: /dev/ttyUSB0` alone — Docker refuses to start if that node is missing at boot.
 
 The container uses `restart: unless-stopped` so it starts on boot, waits for USB ports, connects, and logs when motor data arrives.
 

@@ -1,0 +1,27 @@
+services:
+  motor_logger:
+    container_name: motor_logger
+    build:
+      context: ./motor-controller-log
+      dockerfile: Dockerfile
+    image: motor_logger:latest
+    restart: unless-stopped
+    network_mode: host
+
+    # /dev bind-mount: see hot-plugged ttyUSB nodes without listing them in devices:
+    # device_cgroup_rules: allow USB-serial char devices (major 188 = ttyUSB*)
+    volumes:
+      - /dev:/dev
+      - ./motor-controller-log/data:/app/data
+      - ./motor-controller-log/config:/app/config
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
+    device_cgroup_rules:
+      - "c 188:* rmw"
+
+    environment:
+      - TZ=Asia/Kolkata
+      - MOTOR_LOG_SHOW_DASHBOARD=false
+      - MOTOR_LOG_PORT_WAIT_TIMEOUT_SEC=0
+      - MOTOR_LOG_CONNECT_RETRY_SEC=5
