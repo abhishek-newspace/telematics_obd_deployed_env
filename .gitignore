@@ -1,0 +1,36 @@
+# Session logs (generated at runtime)
+data/power_cycle_*/
+data/*.csv
+data/*.trc
+
+# Keep empty data directory in git
+!data/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local overrides (optional secrets / machine-specific paths)
+config/motor_logger.local.conf
+.env
