@@ -1,0 +1,18 @@
+# Prevent ModemManager / brltty from grabbing QinHeng USB-serial adapters.
+# CAN0 CH340 (1a86:7523) — also covered in 99-telematics-can.rules.
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none", \
+    ENV{SYSTEMD_WANTS}=""
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1"
+
+# Motor TTL CH343 (1a86:55d3) — legacy adapter
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d3", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d3", ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1"
+
+# Motor UART Prolific PL2303 (067b:23a3) — front/rear Dynalog ports
+ATTRS{idVendor}=="067b", ATTRS{idProduct}=="23a3", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="067b", ATTRS{idProduct}=="23a3", ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1"

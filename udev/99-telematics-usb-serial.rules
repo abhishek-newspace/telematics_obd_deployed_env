@@ -1,0 +1,37 @@
+# Stable telematics USB-serial symlinks for Dynalog.
+#
+# USB layout (host Bus 01) — verified on this machine:
+#   Port 1  EMUC Dual CAN (04d8:0205)     → SocketCAN (not mapped here)
+#   Port 3  CH340 USB-CAN (1a86:7523)     → /dev/telematics/can_actuator
+#                                           (see 99-telematics-can.rules)
+#   Port 4  Prolific PL2303 (067b:23a3)   → /dev/telematics/motor_rear   (ttyUSB0)
+#   Port 6  Prolific PL2303 (067b:23a3)   → /dev/telematics/motor_front  (ttyUSB2)
+#
+# Match by physical USB path so ttyUSBn renumbering does not swap roles.
+# Install: sudo ./install-usb-rules.sh
+
+# --- Rear motor UART: Bus1 Port 4 (Prolific, typically ttyUSB0) --------------
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="067b", ATTR{idProduct}=="23a3", \
+    ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:4:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none"
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="067b", ATTRS{idProduct}=="23a3", \
+    ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:4:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    SYMLINK+="telematics/motor_rear", GROUP="dialout", MODE="0660"
+
+# --- Front motor UART: Bus1 Port 6 (Prolific, typically ttyUSB2) -------------
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="067b", ATTR{idProduct}=="23a3", \
+    ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:6:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none"
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="067b", ATTRS{idProduct}=="23a3", \
+    ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:6:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    SYMLINK+="telematics/motor_front", GROUP="dialout", MODE="0660"

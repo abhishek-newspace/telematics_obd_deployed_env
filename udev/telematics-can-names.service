@@ -1,0 +1,16 @@
+[Unit]
+Description=Ensure telematics CAN iface names (can_control / can_auxiliary)
+Documentation=file:///home/testing/Desktop/telematics_obd_deploy_v7.0/udev/99-telematics-can.rules
+After=run_emucd.service
+Wants=run_emucd.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/telematics-can-rename.sh comp_can can_control
+ExecStart=/usr/local/sbin/telematics-can-rename.sh can_actuator can_control
+ExecStart=/usr/local/sbin/telematics-can-rename.sh can1 can_auxiliary
+ExecStart=/bin/sh -c 'ip link set can_control up 2>/dev/null || true; ip link set can_auxiliary up 2>/dev/null || true'
+
+[Install]
+WantedBy=multi-user.target

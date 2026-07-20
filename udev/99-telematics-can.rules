@@ -1,0 +1,46 @@
+# Stable Dynalog CAN port names (SocketCAN + USB-CAN).
+# Do not touch motor UART / ethernet here.
+#
+# Built-in Innodisk EMUC dual CAN (USB 04d8:0205 → ttyACM*):
+#   Bus 01 Port 1  ID_PATH=pci-0000:00:14.0-usb-0:1:1.0
+#   → can_control   (EMUC ch1 / was comp_can)
+#   → can_auxiliary (EMUC ch2 / was can1)
+#
+# External USB-CAN actuator (CH340 1a86:7523):
+#   Bus 01 Port 3  ID_PATH=pci-0000:00:14.0-usb-0:3:1.0  (typically ttyUSB1)
+#   → /dev/telematics/can_actuator
+#
+# Install: sudo ./install-usb-rules.sh
+#
+# can_log.conf:
+#   can0_device=can_auxiliary
+#   can1_device=/dev/telematics/can_actuator
+#   can2_device=can_control
+
+# --- EMUC SocketCAN ----------------------------------------------------------
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="comp_can", \
+    ENV{ID_VENDOR_ID}=="04d8", ENV{ID_MODEL_ID}=="0205", \
+    IMPORT{builtin}="net_setup_link", \
+    RUN+="/usr/local/sbin/telematics-can-rename.sh comp_can can_control"
+
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="can_actuator", \
+    ENV{ID_VENDOR_ID}=="04d8", ENV{ID_MODEL_ID}=="0205", \
+    RUN+="/usr/local/sbin/telematics-can-rename.sh can_actuator can_control"
+
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="can1", \
+    ENV{ID_VENDOR_ID}=="04d8", ENV{ID_MODEL_ID}=="0205", \
+    IMPORT{builtin}="net_setup_link", \
+    RUN+="/usr/local/sbin/telematics-can-rename.sh can1 can_auxiliary"
+
+# --- External USB-CAN actuator: Bus1 Port 3 (CH340) --------------------------
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", \
+    ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:3:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none"
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", \
+    ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:3:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    SYMLINK+="telematics/can_actuator", GROUP="dialout", MODE="0660"

@@ -1,0 +1,14 @@
+# Persistent SocketCAN name: EMUC ch2 → can_auxiliary
+# (This bus was previously misnamed can_control; USB-CAN is control.)
+# Install: /etc/systemd/network/10-telematics-can-auxiliary.link
+
+[Match]
+Type=can
+OriginalName=can1 can_control can_auxiliary
+Property=ID_VENDOR_ID=04d8
+Property=ID_MODEL_ID=0205
+
+[Link]
+Name=can_auxiliary
+MACAddressPolicy=none
+NamePolicy=

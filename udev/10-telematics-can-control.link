@@ -1,0 +1,13 @@
+# Persistent SocketCAN name: EMUC ch1 → can_control
+# Install: /etc/systemd/network/10-telematics-can-control.link
+
+[Match]
+Type=can
+OriginalName=comp_can can_actuator can_control
+Property=ID_VENDOR_ID=04d8
+Property=ID_MODEL_ID=0205
+
+[Link]
+Name=can_control
+MACAddressPolicy=none
+NamePolicy=

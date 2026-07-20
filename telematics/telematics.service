@@ -1,0 +1,18 @@
+[Unit]
+Description=Telematics Docker container (boot)
+Documentation=file:///home/testing/Desktop/telematics_obd_deploy_v7.0/telematics/telematics.service
+# Independent of OBD (user session). Start as soon as Docker is up.
+After=docker.service
+Wants=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/testing/Desktop/telematics_obd_deploy_v7.0
+ExecStart=/home/testing/Desktop/telematics_obd_deploy_v7.0/telematics/start.sh
+StandardOutput=journal+console
+StandardError=journal+console
+TimeoutStartSec=90
+
+[Install]
+WantedBy=multi-user.target
