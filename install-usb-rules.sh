@@ -99,7 +99,7 @@ done
 
 echo
 echo "=== /dev/telematics (USB actuator + motor UARTs) ==="
-ls -la /dev/telematics/ 2>/dev/null || echo "  (none yet — plug USB-CAN on Port 3, motors on Ports 4/6)"
+ls -la /dev/telematics/ 2>/dev/null || echo "  (none yet — CAN Port 4, rear Port 3, front Port 6)"
 
 echo
 echo "=== can_log.conf should use ==="
@@ -108,7 +108,8 @@ echo "  can1_device=/dev/telematics/can_actuator"
 echo "  can2_device=can_control"
 echo
 echo "=== motor_log.conf should use ==="
-echo "  front_serial=/dev/telematics/motor_front   # Bus1 Port 6 Prolific (ttyUSB2)"
-echo "  rear_serial=/dev/telematics/motor_rear     # Bus1 Port 4 Prolific (ttyUSB0)"
+echo "  front_serial=/dev/telematics/motor_front   # Prolific DFBOo151406 (Port 6 / ttyUSB2)"
+echo "  rear_serial=/dev/telematics/motor_rear     # Prolific ENBDb2A6709 (Port 3 / ttyUSB1)"
+echo "  can1_device=/dev/telematics/can_actuator   # CH340 (Port 4 / ttyUSB0)"
 echo
 echo "Then: docker restart telematics_server"
