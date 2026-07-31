@@ -1,15 +1,15 @@
 # Stable telematics USB-serial symlinks for Dynalog.
 #
-# Current USB layout (Bus 01) — updated 2026-07-21:
+# Current USB layout (Bus 01) — updated 2026-07-31 (hardware-verified):
 #   Port 1  EMUC Dual CAN (04d8:0205)     → SocketCAN (see 99-telematics-can.rules)
-#   Port 3  Prolific rear motor           → /dev/telematics/motor_rear   (ttyUSB1)
-#   Port 4  CH340 USB-CAN actuator        → /dev/telematics/can_actuator (ttyUSB0)
-#   Port 6  Prolific front motor          → /dev/telematics/motor_front  (ttyUSB2)
+#   Port 3  Prolific front motor          → /dev/telematics/motor_front  (ttyUSB1)
+#   Port 4/6 CH340 USB-CAN actuator       → /dev/telematics/can_actuator (ttyUSB0)
+#   Port 5  Prolific rear motor           → /dev/telematics/motor_rear   (ttyUSB2)
 #
 # Motors match by USB serial (stable if cables move between ports).
 # Install: sudo ./install-usb-rules.sh
 
-# --- Rear motor UART (Prolific ENBDb2A6709, Bus1 Port 3) ----------------------
+# --- Front motor UART (Prolific ENBDb2A6709, Bus1 Port 3 / ttyUSB1) -----------
 ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="067b", ATTR{idProduct}=="23a3", \
     ATTR{serial}=="ENBDb2A6709", \
     ENV{ID_MM_DEVICE_IGNORE}="1", \
@@ -20,9 +20,9 @@ ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="067b", ATTR{idProduct}=="23a3"
 SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="067b", ATTRS{idProduct}=="23a3", \
     ATTRS{serial}=="ENBDb2A6709", \
     ENV{ID_MM_DEVICE_IGNORE}="1", \
-    SYMLINK+="telematics/motor_rear", GROUP="dialout", MODE="0660"
+    SYMLINK+="telematics/motor_front", GROUP="dialout", MODE="0660"
 
-# --- Front motor UART (Prolific DFBOo151406, Bus1 Port 6) ---------------------
+# --- Rear motor UART (Prolific DFBOo151406, Bus1 Port 5 / ttyUSB2) ------------
 ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="067b", ATTR{idProduct}=="23a3", \
     ATTR{serial}=="DFBOo151406", \
     ENV{ID_MM_DEVICE_IGNORE}="1", \
@@ -33,4 +33,4 @@ ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="067b", ATTR{idProduct}=="23a3"
 SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="067b", ATTRS{idProduct}=="23a3", \
     ATTRS{serial}=="DFBOo151406", \
     ENV{ID_MM_DEVICE_IGNORE}="1", \
-    SYMLINK+="telematics/motor_front", GROUP="dialout", MODE="0660"
+    SYMLINK+="telematics/motor_rear", GROUP="dialout", MODE="0660"

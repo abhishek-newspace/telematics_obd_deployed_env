@@ -4,7 +4,7 @@
 #   Bus 01 Port 1  → can_control / can_auxiliary (EMUC ch1/ch2)
 #
 # External USB-CAN actuator (CH340 1a86:7523):
-#   Bus 01 Port 4  ID_PATH=pci-0000:00:14.0-usb-0:4:1.0  (typically ttyUSB0)
+#   Bus 01 Port 6  ID_PATH=pci-0000:00:14.0-usb-0:6:1.0  (typically ttyUSB0)
 #   → /dev/telematics/can_actuator
 #
 # Install: sudo ./install-usb-rules.sh
@@ -29,15 +29,15 @@ SUBSYSTEM=="net", ACTION=="add", KERNEL=="can1", \
     IMPORT{builtin}="net_setup_link", \
     RUN+="/usr/local/sbin/telematics-can-rename.sh can1 can_auxiliary"
 
-# --- External USB-CAN actuator: Bus1 Port 4 (CH340) --------------------------
+# --- External USB-CAN actuator: Bus1 Port 6 (CH340) --------------------------
 ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", \
-    ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:4:1.0", \
+    ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:6:1.0", \
     ENV{ID_MM_DEVICE_IGNORE}="1", \
     ENV{ID_MM_PORT_IGNORE}="1", \
     ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
     ENV{BRLTTY_BRAILLE_DRIVER}="none"
 
 SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", \
-    ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:4:1.0", \
+    ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:6:1.0", \
     ENV{ID_MM_DEVICE_IGNORE}="1", \
     SYMLINK+="telematics/can_actuator", GROUP="dialout", MODE="0660"
