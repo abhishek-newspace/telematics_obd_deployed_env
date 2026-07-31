@@ -34,6 +34,12 @@ install_file "${UDEV_DIR}/10-telematics-can-auxiliary.link" \
     /etc/systemd/network/10-telematics-can-auxiliary.link
 rm -f /etc/systemd/network/10-telematics-can-actuator.link
 
+# --- Persistent Ethernet name for hub NIC (GNSS / L-band) -------------------
+if [[ -f "${UDEV_DIR}/10-telematics-eth.link" ]]; then
+    install_file "${UDEV_DIR}/10-telematics-eth.link" \
+        /etc/systemd/network/10-telematics-eth.link
+fi
+
 # --- udev rules + rename helper --------------------------------------------
 install_file "${UDEV_DIR}/99-telematics-can.rules" /etc/udev/rules.d/99-telematics-can.rules
 if [[ -f "${UDEV_DIR}/99-telematics-usb-serial.rules" ]]; then
@@ -102,10 +108,26 @@ echo "=== /dev/telematics (USB actuator + motor UARTs) ==="
 ls -la /dev/telematics/ 2>/dev/null || echo "  (none yet — CAN Port 4, rear Port 3, front Port 6)"
 
 echo
+echo "=== Ethernet hub (expected: telematics_eth) ==="
+if [[ -e /sys/class/net/telematics_eth ]]; then
+    echo "OK: telematics_eth ($(ip -br link show telematics_eth | awk '{print $2}')) MAC=$(cat /sys/class/net/telematics_eth/address)"
+elif [[ -e /sys/class/net/enp2s0 ]]; then
+    echo "PENDING rename: enp2s0 still present — reboot once, or:"
+    echo "  sudo ip link set enp2s0 down"
+    echo "  sudo ip link set enp2s0 name telematics_eth"
+    echo "  sudo ip link set telematics_eth up"
+    echo "  sudo nmcli connection modify \"Wired connection 2\" connection.interface-name telematics_eth"
+    echo "  sudo nmcli connection up \"Wired connection 2\""
+else
+    echo "MISSING: telematics_eth / enp2s0"
+fi
+
+echo
 echo "=== can_log.conf should use ==="
 echo "  can0_device=can_auxiliary"
 echo "  can1_device=/dev/telematics/can_actuator"
 echo "  can2_device=can_control"
+echo "  sec_comp_interface_health_ethernet_interface=telematics_eth"
 echo
 echo "=== motor_log.conf should use ==="
 echo "  front_serial=/dev/telematics/motor_front   # Prolific DFBOo151406 (Port 6 / ttyUSB2)"

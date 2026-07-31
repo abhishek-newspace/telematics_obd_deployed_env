@@ -1,0 +1,19 @@
+# Persistent Ethernet name for Dynalog hub NIC (GNSS + L-band).
+# Match by MAC so PCI renumbering never loses the interface.
+# Install: /etc/systemd/network/10-telematics-eth.link
+#
+# Physical: enp2s0 / igb / PCI 0000:02:00.0
+# MAC:      04:2b:58:1d:41:62
+#
+# After install: reboot (or: sudo ip link set enp2s0 down &&
+#   sudo ip link set enp2s0 name telematics_eth && sudo ip link set telematics_eth up)
+# and point NetworkManager "Wired connection 2" at interface telematics_eth.
+
+[Match]
+Type=ether
+MACAddress=04:2b:58:1d:41:62
+
+[Link]
+Name=telematics_eth
+MACAddressPolicy=none
+NamePolicy=
