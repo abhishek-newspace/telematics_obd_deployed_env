@@ -32,7 +32,7 @@ Services remain independent:
 4. Run:
 
 ```bash
-cd /path/to/telematics_obd_deploy_v7.0
+cd /path/to/telematics_obd_deployed_env
 sudo ./install-autostart.sh
 ```
 
@@ -46,7 +46,7 @@ systemctl --user start obd-apps.service
 ## Stop and remove autostart
 
 ```bash
-cd /path/to/telematics_obd_deploy_v7.0
+cd /path/to/telematics_obd_deployed_env
 sudo ./remove-autostart.sh
 ```
 
