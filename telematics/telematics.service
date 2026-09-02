@@ -1,15 +1,15 @@
 [Unit]
 Description=Telematics Docker container (boot)
-Documentation=file:///home/testing/Desktop/telematics_obd_deployed_env/telematics/telematics.service
+Documentation=file:///home/pi/Desktop/telematics_obd_deployed_env/telematics/telematics.service
 # Independent of OBD (user session). Start as soon as Docker is up.
-After=docker.service
-Wants=docker.service
+After=docker.service telematics-can-names-cm5.service
+Wants=docker.service telematics-can-names-cm5.service
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/home/testing/Desktop/telematics_obd_deployed_env
-ExecStart=/home/testing/Desktop/telematics_obd_deployed_env/telematics/start.sh
+WorkingDirectory=/home/pi/Desktop/telematics_obd_deployed_env
+ExecStart=/home/pi/Desktop/telematics_obd_deployed_env/telematics/start.sh
 StandardOutput=journal+console
 StandardError=journal+console
 TimeoutStartSec=90

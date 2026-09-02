@@ -1,0 +1,43 @@
+# reComputer telematics CAN naming (onboard MCP2518FD + USB-CAN actuator)
+#
+# Mapping (same logical names as Dynalog deploy):
+#   can_control    ← onboard CAN-0 (MCP2518FD / can0)
+#   can_auxiliary  ← onboard CAN-1 (MCP2518FD / can1)
+#   can_actuator   ← USB CH340 serial CAN → /dev/telematics/can_actuator
+#
+# can_log.conf:
+#   can0_device=can_auxiliary
+#   can1_device=/dev/telematics/can_actuator
+#   can2_device=can_control
+#
+# Install: sudo ./install-cm5-setup.sh
+
+# --- Onboard MCP2518FD SocketCAN (fallback rename if .link did not apply) -----
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="can0", \
+    RUN+="/usr/local/sbin/telematics-can-rename.sh can0 can_control"
+
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="can1", \
+    RUN+="/usr/local/sbin/telematics-can-rename.sh can1 can_auxiliary"
+
+# Legacy names from other carriers / overlays
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="comp_can", \
+    RUN+="/usr/local/sbin/telematics-can-rename.sh comp_can can_control"
+
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="can_actuator", \
+    ENV{ID_VENDOR_ID}!="1a86", \
+    RUN+="/usr/local/sbin/telematics-can-rename.sh can_actuator can_control"
+
+# --- USB-CAN actuator (CH340 1a86:7523) — match any USB port on CM5 ---------
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none"
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    SYMLINK+="telematics/can_actuator", GROUP="dialout", MODE="0660"
+
+# USB SocketCAN (gs_usb / candleLight) — optional second adapter
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="can*", ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="606f", \
+    RUN+="/usr/local/sbin/telematics-can-rename.sh %k can_actuator_usb"

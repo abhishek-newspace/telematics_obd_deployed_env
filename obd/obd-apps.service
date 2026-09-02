@@ -1,6 +1,6 @@
 [Unit]
 Description=OBD Docker display (user session)
-Documentation=file:///home/testing/Desktop/telematics_obd_deployed_env/obd/obd-apps.service
+Documentation=file:///home/pi/Desktop/telematics_obd_deployed_env/obd/obd-apps.service
 After=docker.service network-online.target graphical-session.target
 Wants=docker.service graphical-session.target
 StartLimitIntervalSec=0
@@ -10,14 +10,14 @@ Type=oneshot
 RemainAfterExit=yes
 Restart=on-failure
 RestartSec=15
-WorkingDirectory=/home/testing/Desktop/telematics_obd_deployed_env
+WorkingDirectory=/home/pi/Desktop/telematics_obd_deployed_env
 
 Environment=DISPLAY=:0
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
 Environment=GDK_BACKEND=x11
 
-ExecStart=/home/testing/Desktop/telematics_obd_deployed_env/obd/start.sh
+ExecStart=/home/pi/Desktop/telematics_obd_deployed_env/obd/start.sh
 TimeoutStartSec=infinity
 
 [Install]

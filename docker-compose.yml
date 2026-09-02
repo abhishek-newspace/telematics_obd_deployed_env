@@ -1,7 +1,7 @@
 services:
   telemetry_server:
     build:
-      context: /home/testing/Desktop/telematics_src
+      context: ../telematics_src
       dockerfile: Dockerfile.production
     # image: 10.10.60.225:5000/telematics_server:f3-v3-alpha-4
     container_name: telematics_server

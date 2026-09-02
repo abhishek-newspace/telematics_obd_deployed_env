@@ -1,0 +1,13 @@
+# CM5 onboard CAN channel 1 → can_control (replaces EMUC ch1 / Dynalog comp_can)
+# Matches MCP2518FD / SocketCAN default name can0
+# Install: /etc/systemd/network/10-telematics-can-control-cm5.link
+
+[Match]
+Type=can
+OriginalName=can0 can_control comp_can
+Driver=mcp251x
+
+[Link]
+Name=can_control
+MACAddressPolicy=none
+NamePolicy=

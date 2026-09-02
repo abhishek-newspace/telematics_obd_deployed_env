@@ -1,0 +1,14 @@
+[Unit]
+Description=CM5 telematics CAN names and link up (can_control / can_auxiliary)
+Documentation=file:///home/pi/Desktop/telematics_obd_deployed_env/udev/99-telematics-can-cm5.rules
+After=systemd-udev-settle.service
+Before=telematics.service docker.service
+Wants=systemd-udev-settle.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/cm5-can-up.sh
+
+[Install]
+WantedBy=multi-user.target

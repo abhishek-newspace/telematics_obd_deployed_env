@@ -1,0 +1,13 @@
+# CM5 onboard CAN channel 2 → can_auxiliary (replaces EMUC ch2 / Dynalog can1)
+# Matches MCP2518FD / SocketCAN default name can1
+# Install: /etc/systemd/network/10-telematics-can-auxiliary-cm5.link
+
+[Match]
+Type=can
+OriginalName=can1 can_auxiliary
+Driver=mcp251x
+
+[Link]
+Name=can_auxiliary
+MACAddressPolicy=none
+NamePolicy=

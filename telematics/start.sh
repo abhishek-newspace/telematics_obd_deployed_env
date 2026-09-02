@@ -5,7 +5,7 @@ DEPLOY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONTAINER=telematics_server
 
 # systemd (root) needs compose on PATH
-export PATH="/usr/local/lib/docker/cli-plugins:/home/testing/.docker/cli-plugins:${PATH}"
+export PATH="/usr/local/lib/docker/cli-plugins:/home/pi/.docker/cli-plugins:${PATH}"
 
 # Avoid compose warnings when only starting telematics (OBD uses these).
 export DISPLAY="${DISPLAY:-:0}"

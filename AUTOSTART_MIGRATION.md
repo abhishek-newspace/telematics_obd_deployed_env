@@ -88,6 +88,17 @@ Typical replacements:
 - `/home/testing/...` -> new home path
 - `testing` -> new username
 
+## Raspberry Pi CM5
+
+For Seeed reComputer Industrial (onboard MCP2518FD + USB CAN), use:
+
+```bash
+cd ~/Desktop/telematics_obd_deployed_env
+sudo ./install-cm5-setup.sh
+```
+
+See `~/Desktop/RECOMPUTER_INDUSTRIAL_SETUP.md` for CAN overlays, port names, and prerequisites.
+
 ## Notes
 
 - `telematics.service` is enabled under `multi-user.target`.

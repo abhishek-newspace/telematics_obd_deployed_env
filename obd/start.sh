@@ -4,10 +4,10 @@ set -euo pipefail
 DEPLOY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DISPLAY="${DISPLAY:-:0}"
 XAUTHORITY="${XAUTHORITY:-}"
-SESSION_USER="${SESSION_USER:-testing}"
+SESSION_USER="${SESSION_USER:-pi}"
 export DISPLAY
 
-export PATH="/usr/local/lib/docker/cli-plugins:/home/testing/.docker/cli-plugins:${PATH}"
+export PATH="/usr/local/lib/docker/cli-plugins:/home/pi/.docker/cli-plugins:${PATH}"
 
 log() {
     echo "[obd] $*"
