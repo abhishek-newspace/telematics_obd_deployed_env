@@ -1,0 +1,17 @@
+[Unit]
+Description=Telematics Docker container (boot)
+Documentation=file:///home/jetson/Desktop/telematics_obd_deploy/telematics/telematics.service
+After=docker.service network-online.target time-sync.target
+Wants=docker.service network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/jetson/Desktop/telematics_obd_deploy
+ExecStart=/home/jetson/Desktop/telematics_obd_deploy/telematics/start.sh
+StandardOutput=journal+console
+StandardError=journal+console
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

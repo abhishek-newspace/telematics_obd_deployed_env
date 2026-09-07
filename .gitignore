@@ -1,0 +1,5 @@
+data/
+logs/
+*.ziptelematics/data/
+*.zip
+bundle/

@@ -1,0 +1,28 @@
+# Stable telematics USB-serial symlinks (physical USB hub port binding).
+# ttyUSB numbers change on replug/reboot; /dev/telematics/* stays fixed.
+#
+# Jetson USB2 hub (lsusb -t, Bus 01 Port 2 → 0bda:5489 4-port hub):
+#   Hub port 1 (1-2.1) → /dev/telematics/motor_rear   CH340 UART (ttyUSB*)
+#   Hub port 2 (1-2.2) → /dev/telematics/can0          CH340 USB-CAN (ttyUSB*)
+#   Hub port 3 (1-2.3) → /dev/telematics/motor_front  CH340 UART (ttyUSB*)
+#   Hub port 4         → spare / touch — do not assign
+#
+# All three adapters share vendor/product 1a86:7523; bind by KERNELS (hub port).
+#
+# Install: sudo ./install-usb-rules.sh
+# After moving a cable to another port, edit KERNELS below and re-install.
+
+# --- CAN0 auxiliary (hub port 2) ---------------------------------------------
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", \
+    KERNELS=="1-2.2", SYMLINK+="telematics/can0", GROUP="dialout", MODE="0660"
+
+# --- Front motor controller UART (hub port 3) --------------------------------
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", \
+    KERNELS=="1-2.3", SYMLINK+="telematics/motor_front", GROUP="dialout", MODE="0660"
+
+# --- Rear motor controller UART (hub port 1) ---------------------------------
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", \
+    KERNELS=="1-2.1", SYMLINK+="telematics/motor_rear", GROUP="dialout", MODE="0660"

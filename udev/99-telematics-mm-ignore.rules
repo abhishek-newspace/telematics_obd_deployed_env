@@ -1,0 +1,5 @@
+# Prevent ModemManager from grabbing QinHeng USB-serial adapters used by telematics.
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d3", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d3", ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1"
