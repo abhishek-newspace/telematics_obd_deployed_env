@@ -3,3 +3,4 @@ logs/
 *.ziptelematics/data/
 *.zip
 bundle/
+.env
