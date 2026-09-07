@@ -33,7 +33,7 @@ services:
   obd:
     container_name: obd
     # Registry image may ship Jetson/arm64 binaries; build locally for host arch (Dynalog x86_64).
-    image: 10.10.60.225:5000/scout-obd:f4-v4-alpha-1
+    image: scout-obd:v1.0.0-rc-1   
     build:
       context: ./obd
       dockerfile: Dockerfile
@@ -48,14 +48,16 @@ services:
 
     environment:
       - TZ=Asia/Kolkata
+      # labwc + Xwayland on Pi OS (not gdm): cookie lives in ~/.Xauthority
       - DISPLAY=${DISPLAY:-:0}
-      - XAUTHORITY=${XAUTHORITY:-/run/user/1000/gdm/Xauthority}
+      - XAUTHORITY=${XAUTHORITY:-/home/pi/.Xauthority}
       - GDK_BACKEND=x11
       - XDG_RUNTIME_DIR=/run/user/1000
       - DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
 
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /home/pi/.Xauthority:/home/pi/.Xauthority:ro
       - /run/user/1000:/run/user/1000
       - /dev/dri:/dev/dri
       - /dev:/dev
