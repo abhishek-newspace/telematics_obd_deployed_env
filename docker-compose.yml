@@ -3,7 +3,8 @@ services:
     build:
       context: ../telematics_src
       dockerfile: Dockerfile.production
-    # image: 10.10.60.225:5000/telematics_server:f3-v3-alpha-4
+    image: 10.10.60.250:5005/telematics_server:f8-v8-alpha-2
+    platform: linux/arm64   
     container_name: telematics_server
     restart: unless-stopped
     network_mode: "host"

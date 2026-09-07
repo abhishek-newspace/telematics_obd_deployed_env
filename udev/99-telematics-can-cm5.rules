@@ -1,9 +1,13 @@
-# reComputer telematics CAN naming (onboard MCP2518FD + USB-CAN actuator)
+# reComputer Industrial — CAN naming (onboard MCP2518FD + USB-CAN actuator)
 #
-# Mapping (same logical names as Dynalog deploy):
-#   can_control    ← onboard CAN-0 (MCP2518FD / can0)
-#   can_auxiliary  ← onboard CAN-1 (MCP2518FD / can1)
-#   can_actuator   ← USB CH340 serial CAN → /dev/telematics/can_actuator
+# Mapping (verified on this hardware):
+#   can_control    ← onboard MCP2518FD SPI3.1 (SocketCAN)
+#   can_auxiliary  ← onboard MCP2518FD SPI3.0 (SocketCAN)
+#   can_actuator   ← USB CH340 Waveshare-style serial CAN @ 2 Mbps
+#                    ID_PATH=platform-xhci-hcd.1-usb-0:1.1:1.0  (hub port 1)
+#                    → /dev/telematics/can_actuator
+#
+# Do NOT match every 1a86:7523 — other CH340s are motor RS485 adapters.
 #
 # can_log.conf:
 #   can0_device=can_auxiliary
@@ -19,22 +23,19 @@ SUBSYSTEM=="net", ACTION=="add", KERNEL=="can0", \
 SUBSYSTEM=="net", ACTION=="add", KERNEL=="can1", \
     RUN+="/usr/local/sbin/telematics-can-rename.sh can1 can_auxiliary"
 
-# Legacy names from other carriers / overlays
 SUBSYSTEM=="net", ACTION=="add", KERNEL=="comp_can", \
     RUN+="/usr/local/sbin/telematics-can-rename.sh comp_can can_control"
 
-SUBSYSTEM=="net", ACTION=="add", KERNEL=="can_actuator", \
-    ENV{ID_VENDOR_ID}!="1a86", \
-    RUN+="/usr/local/sbin/telematics-can-rename.sh can_actuator can_control"
-
-# --- USB-CAN actuator (CH340 1a86:7523) — match any USB port on CM5 ---------
+# --- USB-CAN actuator: xHCI hub port 1 only (CH340) ---------------------------
 ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", \
+    ENV{ID_PATH}=="platform-xhci-hcd.1-usb-0:1.1:1.0", \
     ENV{ID_MM_DEVICE_IGNORE}="1", \
     ENV{ID_MM_PORT_IGNORE}="1", \
     ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
     ENV{BRLTTY_BRAILLE_DRIVER}="none"
 
 SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", \
+    ENV{ID_PATH}=="platform-xhci-hcd.1-usb-0:1.1:1.0", \
     ENV{ID_MM_DEVICE_IGNORE}="1", \
     SYMLINK+="telematics/can_actuator", GROUP="dialout", MODE="0660"
 

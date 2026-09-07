@@ -1,0 +1,43 @@
+# reComputer Industrial — motor RS485 USB-serial symlinks (CH340)
+#
+# Verified mapping (stable by USB hub port / ID_PATH):
+#   motor_front  ← CH340 on dwc2 hub port 5
+#                  ID_PATH=platform-1000480000.usb-usb-0:1.5:1.0
+#                  → /dev/telematics/motor_front
+#   motor_rear   ← CH340 on xHCI hub port 2
+#                  ID_PATH=platform-xhci-hcd.1-usb-0:1.2:1.0
+#                  → /dev/telematics/motor_rear
+#   can_actuator ← CH340 on xHCI hub port 1 (see 99-telematics-can-cm5.rules)
+#
+# Protocol: MX_ES_DriverCan_UART_F1 @ 38400 (host serial_baud in motor_log.conf)
+#
+# Dynalog Prolific adapters (ENBDb2A6709 / DFBOo151406) are not present on this
+# unit — those rules stay in 99-telematics-usb-serial.rules for the old carrier.
+#
+# Install: sudo ./install-cm5-setup.sh
+
+# --- Front motor RS485 (CH340, dwc2 port 5) -----------------------------------
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", \
+    ENV{ID_PATH}=="platform-1000480000.usb-usb-0:1.5:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none"
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", \
+    ENV{ID_PATH}=="platform-1000480000.usb-usb-0:1.5:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    SYMLINK+="telematics/motor_front", GROUP="dialout", MODE="0660"
+
+# --- Rear motor RS485 (CH340, xHCI hub port 2) --------------------------------
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", \
+    ENV{ID_PATH}=="platform-xhci-hcd.1-usb-0:1.2:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none"
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", \
+    ENV{ID_PATH}=="platform-xhci-hcd.1-usb-0:1.2:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    SYMLINK+="telematics/motor_rear", GROUP="dialout", MODE="0660"

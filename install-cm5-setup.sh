@@ -52,10 +52,11 @@ rm -f /etc/systemd/network/10-telematics-eth.link
 install_file "${UDEV_DIR}/99-telematics-can-cm5.rules" /etc/udev/rules.d/99-telematics-can-cm5.rules
 rm -f /etc/udev/rules.d/99-telematics-can.rules
 
-if [[ -f "${UDEV_DIR}/99-telematics-usb-serial.rules" ]]; then
-    install_file "${UDEV_DIR}/99-telematics-usb-serial.rules" \
-        /etc/udev/rules.d/99-telematics-usb-serial.rules
-fi
+# CM5 / reComputer: CH340 motors + actuator by USB hub path (not Dynalog Prolific)
+install_file "${UDEV_DIR}/99-telematics-usb-serial-cm5.rules" \
+    /etc/udev/rules.d/99-telematics-usb-serial-cm5.rules
+rm -f /etc/udev/rules.d/99-telematics-usb-serial.rules
+
 if [[ -f "${UDEV_DIR}/99-telematics-mm-ignore.rules" ]]; then
     install_file "${UDEV_DIR}/99-telematics-mm-ignore.rules" \
         /etc/udev/rules.d/99-telematics-mm-ignore.rules
@@ -106,8 +107,15 @@ for iface in can_control can_auxiliary; do
 done
 
 echo
-echo "=== /dev/telematics ==="
-ls -la /dev/telematics/ 2>/dev/null || echo "  (none yet — plug USB-CAN CH340 for can_actuator)"
+echo "=== /dev/telematics (expected: can_actuator, motor_front, motor_rear) ==="
+ls -la /dev/telematics/ 2>/dev/null || echo "  (none yet — check CH340 USB cables)"
+for link in can_actuator motor_front motor_rear; do
+    if [[ -e "/dev/telematics/${link}" ]]; then
+        echo "OK: ${link} → $(readlink -f "/dev/telematics/${link}")"
+    else
+        echo "MISSING: ${link}"
+    fi
+done
 
 echo
 echo "=== Ethernet (expected: telematics_eth) ==="
