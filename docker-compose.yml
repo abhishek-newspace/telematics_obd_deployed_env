@@ -4,8 +4,8 @@ services:
     #   context: /home/jetson/Desktop/telematics_src/
     #   dockerfile: Dockerfile.production
 #    image: telematics_server:latest
-    # image: 10.10.60.250:5005/telematics_server:v1.1.0-rc-1
-    image: ${TELEMATICS_REGISTRY_URL}/telematics_server:${TELEMATICS_CURRENT_VERSION}
+    image: 10.10.60.250:5005/telematics_server:f8-v8-alpha-4
+    # image: ${TELEMATICS_REGISTRY_URL}/telematics_server:${TELEMATICS_CURRENT_VERSION}
     container_name: telematics_server
     restart: "no"
     network_mode: "host"
@@ -33,7 +33,7 @@ services:
 
   obd:
     container_name: obd
-    # image: 10.10.60.250:5000/scout-obd:v1.0.0-rc-1
+    # image: 192.168.168.101:5000/scout-obdv1:latest
     image: ${OBD_REGITRY_URL}/scout-obd:${OBD_CURRENT_VERSION}
     # build:
     #   context: ./obd
@@ -47,6 +47,7 @@ services:
     group_add:
       - "44"
       - "104"
+      - "995"
     env_file:
       - ./.env
 
