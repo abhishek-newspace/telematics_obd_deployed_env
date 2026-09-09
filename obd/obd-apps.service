@@ -1,24 +1,33 @@
 [Unit]
-Description=OBD Docker display (user session)
+Description=OBD Docker display (system boot)
 Documentation=file:///home/pi/Desktop/telematics_obd_deployed_env/obd/obd-apps.service
-After=docker.service network-online.target graphical-session.target
-Wants=docker.service graphical-session.target
+# Wait for Docker; start.sh blocks until X/Wayland (:0) is ready.
+After=docker.service network-online.target graphical.target telematics.service
+Wants=docker.service graphical.target
 StartLimitIntervalSec=0
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-Restart=on-failure
-RestartSec=15
+# Run as desktop user so Xauthority / Wayland runtime are accessible.
+User=pi
+Group=pi
+SupplementaryGroups=docker dialout video render
 WorkingDirectory=/home/pi/Desktop/telematics_obd_deployed_env
 
+Environment=HOME=/home/pi
+Environment=USER=pi
 Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/pi/.Xauthority
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
 Environment=GDK_BACKEND=x11
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/lib/docker/cli-plugins
 
 ExecStart=/home/pi/Desktop/telematics_obd_deployed_env/obd/start.sh
 TimeoutStartSec=infinity
+StandardOutput=journal+console
+StandardError=journal+console
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=graphical.target

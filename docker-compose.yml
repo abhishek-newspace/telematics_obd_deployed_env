@@ -37,7 +37,8 @@ services:
     build:
       context: ./obd
       dockerfile: Dockerfile
-    restart: "no"
+    # Restart with Docker after reboot; start.sh still waits for X before first create.
+    restart: unless-stopped
     network_mode: "host"
     ipc: "host"
     privileged: true

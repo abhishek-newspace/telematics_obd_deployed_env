@@ -202,9 +202,15 @@ wait_for_display() {
 obd_window_viewable() {
     local wid
 
-    wid="$(run_as_user xwininfo -root -tree 2>/dev/null | awk '/"scout_display"/{print $1; exit}')"
+    wid="$(run_as_user xwininfo -root -tree 2>/dev/null | awk '/scout_display|com\.example\.scout_display|scout display/{print $1; exit}')"
     [[ -n "$wid" ]] || return 1
     run_as_user xwininfo -id "$wid" 2>/dev/null | grep -q 'Map State: IsViewable'
+}
+
+obd_app_healthy() {
+    # Container up and app reached CommManager connect (display auth OK).
+    [[ "$(docker inspect obd --format '{{.State.Running}}' 2>/dev/null || echo false)" == "true" ]] || return 1
+    docker logs obd 2>&1 | tail -40 | grep -q 'CommManager: Connected successfully'
 }
 
 obd_failed_drawable() {
@@ -214,7 +220,10 @@ obd_failed_drawable() {
 start_obd() {
     export DISPLAY XAUTHORITY
     log "Starting OBD on ${DISPLAY} (XAUTHORITY=${XAUTHORITY})..."
-    docker compose up -d --force-recreate --remove-orphans obd
+    # Ensure local X clients (docker) may connect — needed after reboot.
+    run_as_user xhost +local: >/dev/null 2>&1 || true
+    run_as_user xhost +SI:localuser:pi >/dev/null 2>&1 || true
+    docker compose up -d --remove-orphans obd
 
     for attempt in $(seq 1 8); do
         sleep 4
@@ -223,25 +232,34 @@ start_obd() {
         exit_code="$(docker inspect obd --format '{{.State.ExitCode}}' 2>/dev/null || echo 1)"
 
         if [[ "$status" == "running" ]]; then
-            if obd_window_viewable; then
-                log "OBD container is running and window is visible."
+            if obd_window_viewable || obd_app_healthy; then
+                if obd_window_viewable; then
+                    log "OBD container is running and window is visible."
+                else
+                    log "OBD container is running (CommManager connected; window title not detected)."
+                fi
                 return 0
             fi
             if obd_failed_drawable; then
                 log "OBD drawable failed; enabling display and retry $attempt/8..."
             else
-                log "OBD running but window not visible; retry $attempt/8..."
+                log "OBD running but UI not confirmed yet; retry $attempt/8..."
             fi
             enable_physical_output || true
+            run_as_user xhost +local: >/dev/null 2>&1 || true
             sleep 2
             export DISPLAY XAUTHORITY
-            docker compose up -d --force-recreate obd
+            # Only force-recreate when previous attempt clearly failed
+            if obd_failed_drawable || [[ "$attempt" -ge 3 ]]; then
+                docker compose up -d --force-recreate obd
+            fi
             continue
         fi
 
         if [[ "$status" == "exited" && ( "$exit_code" == "139" || "$exit_code" == "1" ) ]]; then
             log "OBD exited ($exit_code); retry $attempt/8 after display settle..."
             enable_physical_output || true
+            run_as_user xhost +local: >/dev/null 2>&1 || true
             sleep 2
             export DISPLAY XAUTHORITY
             docker compose up -d --force-recreate obd
@@ -249,7 +267,14 @@ start_obd() {
         fi
 
         log "OBD status=$status exit=$exit_code; waiting..."
+        docker compose up -d obd >/dev/null 2>&1 || true
     done
+
+    # Last chance: if container stayed up, treat as success for boot services.
+    if obd_app_healthy; then
+        log "OBD left running after retries (healthy enough for boot)."
+        return 0
+    fi
 
     log "OBD failed to stay running. Recent logs:"
     docker logs obd 2>&1 | tail -20 || true
@@ -259,8 +284,8 @@ start_obd() {
 cd "$DEPLOY_DIR"
 wait_for_docker
 
-if container_running obd && discover_display && obd_window_viewable; then
-    log "OBD already running with visible UI; skipping."
+if container_running obd && discover_display && { obd_window_viewable || obd_app_healthy; }; then
+    log "OBD already running with healthy UI/session; skipping."
     exit 0
 fi
 
