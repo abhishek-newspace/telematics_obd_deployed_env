@@ -135,8 +135,8 @@ command -v docker >/dev/null && echo "OK: Docker installed" || echo "TODO: Insta
 
 echo
 echo "=== CAN port names (same as Dynalog) ==="
-echo "  can_control    ← onboard CAN-0 (MCP2518FD / reComputer-R21)"
-echo "  can_auxiliary  ← onboard CAN-1 (MCP2518FD / reComputer-R21)"
+echo "  can_auxiliary  ← MCP2518FD SPI CS1 (physical AUX silkscreen)"
+echo "  can_control    ← MCP2518FD SPI CS0 (physical CONTROL silkscreen)"
 echo "  can_actuator   ← USB CH340 → /dev/telematics/can_actuator"
 echo
 echo "can_log.conf already uses these names. Reboot recommended."
