@@ -33,7 +33,7 @@ services:
 
   obd:
     container_name: obd
-    # image: 192.168.168.101:5000/scout-obdv1:latest
+   # image: 192.168.168.101:5000/scout-obdv1:latest
     image: ${OBD_REGITRY_URL}/scout-obd:${OBD_CURRENT_VERSION}
     # build:
     #   context: ./obd
