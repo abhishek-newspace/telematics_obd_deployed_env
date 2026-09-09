@@ -1,10 +1,10 @@
-# CM5 onboard Gigabit Ethernet → telematics_eth (replaces Dynalog hub NIC)
-# MAC: eth0 on Raspberry Pi CM5 (onboard macb)
+# USB Ethernet (smsc95xx / 100M RJ45) → telematics_eth
+# MAC of the secondary RJ45 on reComputer Industrial R21xx
 # Install: /etc/systemd/network/10-telematics-eth-cm5.link
 
 [Match]
 Type=ether
-MACAddress=88:a2:9e:46:a0:2c
+MACAddress=2c:f7:f1:22:ed:1f
 
 [Link]
 Name=telematics_eth
