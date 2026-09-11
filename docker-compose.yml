@@ -33,7 +33,7 @@ services:
   obd:
     container_name: obd
     # Registry image may ship Jetson/arm64 binaries; build locally for host arch (Dynalog x86_64).
-    # image: 192.168.168.101:5000/scout-obdv1:latest  
+    # image: 192.168.168.101:5000/scout-obdv5:arm64  
     image: scout-obd:v1.0.0-rc-1 
     build:
       context: ./obd

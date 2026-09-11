@@ -1,6 +1,6 @@
-# USB Ethernet (smsc95xx / 100M RJ45) → telematics_eth
-# MAC of the secondary RJ45 on reComputer Industrial R21xx
-# Install: /etc/systemd/network/10-telematics-eth-cm5.link
+# Working RJ45 (USB SMSC 100M) → telematics_eth @ 192.168.168.100
+# This is the port that currently gets link when you plug the cable.
+# MAC: 2c:f7:f1:22:ed:1f
 
 [Match]
 Type=ether

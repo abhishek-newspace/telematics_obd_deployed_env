@@ -35,39 +35,8 @@ echo "Deploy dir: ${SCRIPT_DIR}"
 echo "User:       ${USER_NAME}"
 echo
 
-# --- CM5 CAN persistent names (.link) ----------------------------------------
-install_file "${UDEV_DIR}/10-telematics-can-control-cm5.link" \
-    /etc/systemd/network/10-telematics-can-control-cm5.link
-install_file "${UDEV_DIR}/10-telematics-can-auxiliary-cm5.link" \
-    /etc/systemd/network/10-telematics-can-auxiliary-cm5.link
-install_file "${UDEV_DIR}/10-telematics-eth-cm5.link" \
-    /etc/systemd/network/10-telematics-eth-cm5.link
-
-# Disable Dynalog-specific links if present
-rm -f /etc/systemd/network/10-telematics-can-control.link
-rm -f /etc/systemd/network/10-telematics-can-auxiliary.link
-rm -f /etc/systemd/network/10-telematics-eth.link
-
-# --- udev rules --------------------------------------------------------------
-install_file "${UDEV_DIR}/99-telematics-can-cm5.rules" /etc/udev/rules.d/99-telematics-can-cm5.rules
-rm -f /etc/udev/rules.d/99-telematics-can.rules
-
-# CM5 / reComputer: CH340 motors + actuator by USB hub path (not Dynalog Prolific)
-install_file "${UDEV_DIR}/99-telematics-usb-serial-cm5.rules" \
-    /etc/udev/rules.d/99-telematics-usb-serial-cm5.rules
-rm -f /etc/udev/rules.d/99-telematics-usb-serial.rules
-
-if [[ -f "${UDEV_DIR}/99-telematics-mm-ignore.rules" ]]; then
-    install_file "${UDEV_DIR}/99-telematics-mm-ignore.rules" \
-        /etc/udev/rules.d/99-telematics-mm-ignore.rules
-fi
-
-install_exec "${UDEV_DIR}/telematics-can-rename.sh" /usr/local/sbin/telematics-can-rename.sh
-install_exec "${UDEV_DIR}/cm5-can-up.sh" /usr/local/sbin/cm5-can-up.sh
-
-install_file "${UDEV_DIR}/telematics-can-names-cm5.service" \
-    /etc/systemd/system/telematics-can-names-cm5.service
-systemctl disable telematics-can-names.service 2>/dev/null || true
+# --- CM5 required .link + udev only (see udev/README.md) ----------------------
+bash "${UDEV_DIR}/sync-cm5-udev.sh"
 
 # --- dialout for serial CAN / motor UART -------------------------------------
 usermod -aG dialout "$USER_NAME" 2>/dev/null || true
@@ -118,13 +87,16 @@ for link in can_actuator motor_front motor_rear; do
 done
 
 echo
-echo "=== Ethernet (expected: telematics_eth) ==="
+echo "=== Ethernet (expected: telematics_eth + eth1) ==="
 if [[ -e /sys/class/net/telematics_eth ]]; then
     echo "OK: telematics_eth $(ip -br addr show telematics_eth 2>/dev/null)"
-elif [[ -e /sys/class/net/eth0 ]]; then
-    echo "PENDING: eth0 present — reboot once for telematics_eth rename"
 else
-    echo "MISSING: no eth0"
+    echo "PENDING: telematics_eth — reboot once for .link rename"
+fi
+if [[ -e /sys/class/net/eth1 ]]; then
+    echo "OK: eth1 $(ip -br addr show eth1 2>/dev/null)"
+elif [[ -e /sys/class/net/eth0 ]]; then
+    echo "NOTE: eth0 still present — reboot applies eth1 onboard rename"
 fi
 
 echo

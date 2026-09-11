@@ -1,0 +1,11 @@
+# CM5 onboard Gigabit → eth1 @ 192.168.200.106 (other subnet)
+# MAC: 88:a2:9e:46:a0:2c
+
+[Match]
+Type=ether
+MACAddress=88:a2:9e:46:a0:2c
+
+[Link]
+Name=eth1
+MACAddressPolicy=none
+NamePolicy=

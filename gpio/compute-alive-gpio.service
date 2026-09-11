@@ -1,0 +1,21 @@
+[Unit]
+Description=Compute alive signal on industrial DO (high=up, low=shutdown done)
+Documentation=file:///home/pi/Desktop/telematics_obd_deployed_env/gpio/README.md
+DefaultDependencies=no
+# Raise early so external PSU logic sees "alive" soon after boot
+After=local-fs.target systemd-udevd.service
+Wants=local-fs.target
+# Drop before final power-off so the pin goes low while the board is still powered
+Before=shutdown.target reboot.target halt.target poweroff.target
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=COMPUTE_ALIVE_DO=DO_1
+ExecStart=/usr/local/sbin/compute-alive-gpio.sh on
+ExecStop=/usr/local/sbin/compute-alive-gpio.sh off
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target
