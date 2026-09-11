@@ -1,0 +1,99 @@
+# reComputer Industrial R21xx / CM5 — all telematics udev rules (single file)
+#
+# Covers:
+#   - SocketCAN rename helpers (can_control / can_auxiliary)
+#   - USB-CAN actuator symlink
+#   - Motor / VE.Direct USB-serial symlinks
+#   - ModemManager / brltty ignore for these adapters
+#
+# Network iface rename (telematics_eth, eth1, can_*) stays in systemd .link files.
+# Install: sudo bash udev/sync-cm5-udev.sh
+
+# =============================================================================
+# ModemManager / brltty ignore (QinHeng + Prolific motor UARTs)
+# =============================================================================
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none", \
+    ENV{SYSTEMD_WANTS}=""
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1"
+
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d3", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d3", ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1"
+
+ATTRS{idVendor}=="067b", ATTRS{idProduct}=="23a3", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="067b", ATTRS{idProduct}=="23a3", ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1"
+
+# =============================================================================
+# SocketCAN — onboard MCP2518FD (silkscreen AUX / CONTROL)
+# CS1 = can_auxiliary, CS0 = can_control  (see 10-telematics-can-*-cm5.link)
+# =============================================================================
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="can*", ENV{ID_PATH}=="platform-1f0005c000.spi-cs-1", \
+    RUN+="/usr/local/sbin/telematics-can-rename.sh %k can_auxiliary"
+
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="can*", ENV{ID_PATH}=="platform-1f0005c000.spi-cs-0", \
+    RUN+="/usr/local/sbin/telematics-can-rename.sh %k can_control"
+
+# =============================================================================
+# USB-CAN actuator — CH340 on hub path 1.1.4 → /dev/telematics/can_actuator
+# =============================================================================
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", \
+    ENV{ID_PATH}=="platform-xhci-hcd.1-usb-0:1.1.4:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none"
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", \
+    ENV{ID_PATH}=="platform-xhci-hcd.1-usb-0:1.1.4:1.0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    SYMLINK+="telematics/can_actuator", GROUP="dialout", MODE="0660"
+
+# Optional gs_usb / candleLight
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="can*", ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="606f", \
+    RUN+="/usr/local/sbin/telematics-can-rename.sh %k can_actuator_usb"
+
+# =============================================================================
+# Motor UART — Prolific by USB serial → /dev/telematics/motor_*
+# =============================================================================
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="067b", ATTR{idProduct}=="23a3", \
+    ATTR{serial}=="DFBOo151406", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none"
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="067b", ATTRS{idProduct}=="23a3", \
+    ATTRS{serial}=="DFBOo151406", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    SYMLINK+="telematics/motor_rear", GROUP="dialout", MODE="0660"
+
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="067b", ATTR{idProduct}=="23a3", \
+    ATTR{serial}=="ENBDb2A6709", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none"
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="067b", ATTRS{idProduct}=="23a3", \
+    ATTRS{serial}=="ENBDb2A6709", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    SYMLINK+="telematics/motor_front", GROUP="dialout", MODE="0660"
+
+# =============================================================================
+# Victron VE.Direct — FTDI VEANBXT0 → /dev/telematics/ve_charger
+# =============================================================================
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6015", \
+    ATTR{serial}=="VEANBXT0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    ENV{ID_MM_PORT_IGNORE}="1", \
+    ENV{MOBILE_BROADBAND_DEVICE_IGNORE}="1", \
+    ENV{BRLTTY_BRAILLE_DRIVER}="none"
+
+SUBSYSTEM=="tty", KERNEL=="ttyUSB*", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", \
+    ATTRS{serial}=="VEANBXT0", \
+    ENV{ID_MM_DEVICE_IGNORE}="1", \
+    SYMLINK+="telematics/ve_charger", GROUP="dialout", MODE="0660"
