@@ -29,7 +29,7 @@ services:
 
     environment:
       - TZ=Asia/Kolkata
-
+      - ROS_DOMAIN_ID=77
   obd:
     container_name: obd
     # Registry image may ship Jetson/arm64 binaries; build locally for host arch (Dynalog x86_64).
