@@ -3,8 +3,8 @@ services:
     # build:
     #   context: ../telematics_src
     #   dockerfile: Dockerfile.production
-    image: 10.10.60.250:5005/telematics_server:f8-v8-alpha-5   
-    platform: linux/arm64   
+    image: ${TELEMATICS_REGISTRY_URL}/telematics_server:${TELEMATICS_CURRENT_VERSION}
+    platform: linux/arm64
     container_name: telematics_server
     restart: unless-stopped
     network_mode: "host"
@@ -34,7 +34,7 @@ services:
     container_name: obd
     # Registry image may ship Jetson/arm64 binaries; build locally for host arch (Dynalog x86_64).
     # image: 192.168.168.101:5000/scout-obdv5:arm64  
-    image: scout-obd:v1.0.0-rc-1 
+    image: ${OBD_REGISTRY_URL}/scout-obd:${OBD_CURRENT_VERSION} 
     build:
       context: ./obd
       dockerfile: Dockerfile
